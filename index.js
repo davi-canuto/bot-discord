@@ -1,12 +1,15 @@
-const { Client, Events, GatewayIntentBits } = require("discord.js");
+const { Client, Events, GatewayIntentBits, Collection } = require("discord.js");
 const dotenv = require("dotenv");
 dotenv.config();
 
+const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 const { TOKEN, APPLICATION_ID, GUILD_ID } = process.env;
 
 // import commands
 const fs = require("node:fs");
 const path = require("node:path");
+
+client.commands = new Collection();
 
 const commandsPath = path.join(__dirname, "commands");
 const commandFiles = fs
@@ -15,12 +18,17 @@ const commandFiles = fs
 
 for (const file of commandFiles) {
   const filePath = path.join(commandsPath, file);
-  const commands = require(filePath);
-  console.log(commands);
+  const command = require(filePath);
+  if ("data" in command && "execute" in command) {
+    client.commands.set(command.data.name, command);
+  } else {
+    console.log(`${filePath} is with data or execute undefined ${c.user.tag}`);
+  }
 }
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+console.log(client.commands);
 
+// Bot Login
 client.once(Events.ClientReady, (c) => {
   console.log(`Ready! Logged in as ${c.user.tag}`);
 });
