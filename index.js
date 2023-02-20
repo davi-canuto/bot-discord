@@ -34,3 +34,19 @@ client.once(Events.ClientReady, (c) => {
 });
 
 client.login(TOKEN);
+
+// Listener interations with bot
+client.on(Events.InteractionCreate, async (interaction) => {
+  if (!interaction.isChatInputCommand()) return;
+  const command = interaction.client.commands.get(interaction.commandName);
+  if (!command) {
+    console.error("Command not found");
+  }
+  try {
+    await command.execute(interaction);
+  } catch (err) {
+    console.error(err);
+    await interaction.reply("Have error an execute this command. ");
+  }
+  console.log(interaction);
+});
